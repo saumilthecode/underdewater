@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Underwater Exploration</title>
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script src="https://unpkg.com/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
-    #info {
+    #depth-meter {
       position: absolute;
       top: 20px;
-      left: 20px;
+      right: 20px;
       background-color: rgba(0, 0, 0, 0.5);
       color: white;
       padding: 10px;
@@ -19,60 +20,103 @@
   </style>
 </head>
 <body>
-  <div id="info">Use WASD or arrow keys to navigate. Click on objects to interact!</div>
+  <div id="depth-meter">Depth: <span id="depth-value">0</span> meters</div>
   
   <!-- A-Frame Scene -->
-  <a-scene fog="type: exponential; color: #001f3f; density: 0.05">
+  <a-scene environment="preset: underwater; fog: 0.02; dressingAmount: 30; grid: none; shadow: true">
+
     <!-- Camera and Controls -->
-    <a-entity camera look-controls wasd-controls position="0 1.6 0"></a-entity>
+    <a-entity id="camera" camera look-controls wasd-controls="fly: true" position="0 2 0"></a-entity>
 
-    <!-- Ocean Background -->
-    <a-sky color="#003f5c"></a-sky>
+    <!-- Dynamic Lighting Effects -->
+    <a-light type="directional" color="#fff" intensity="1" position="0 10 -10" castShadow>
+      <a-animation attribute="intensity" from="0.5" to="1.5" dur="10000" direction="alternate" repeat="indefinite"></a-animation>
+    </a-light>
+    <a-light type="ambient" color="#a3d5ff"></a-light>
 
-    <!-- Seafloor -->
-    <a-plane rotation="-90 0 0" width="100" height="100" color="#005f40"></a-plane>
+    <!-- Brighter Ocean Background -->
+    <a-sky color="#0096c7"></a-sky>
 
-    <!-- Animated Marine Life -->
-    <a-entity id="fish1" geometry="primitive: sphere; radius: 0.2"
-              material="color: orange" 
-              position="1 1 -3"
-              animation="property: position; to: -2 1 -3; dur: 5000; dir: alternate; loop: true"></a-entity>
-    <a-entity id="fish2" geometry="primitive: sphere; radius: 0.3"
-              material="color: blue" 
-              position="-2 1 -5"
-              animation="property: position; to: 3 1 -5; dur: 7000; dir: alternate; loop: true"></a-entity>
-    <a-entity id="jellyfish" geometry="primitive: sphere; radius: 0.4"
-              material="color: pink" 
-              position="2 3 -6"
-              animation="property: position; to: 2 4 -6; dur: 4000; dir: alternate; loop: true"></a-entity>
+    <!-- Detailed Marine Life -->
+    <!-- Clownfish with Smooth Swimming Animation -->
+    <a-entity id="clownfish" position="1 1 -3" 
+              animation="property: position; to: 2 1 -3; dir: alternate; dur: 3000; easing: easeInOutSine; loop: true"
+              animation__rotation="property: rotation; to: 0 360 0; dur: 5000; easing: linear; loop: true">
+      <a-sphere radius="0.2" color="orange" position="0 0 0" shadow></a-sphere>
+      <a-cone radius-bottom="0.1" height="0.2" color="white" position="0 -0.1 0" rotation="90 0 0"></a-cone>
+      <a-cone radius-bottom="0.05" height="0.15" color="black" position="0 -0.2 0" rotation="90 0 0"></a-cone>
+      <a-cone radius-bottom="0.1" height="0.2" color="white" position="0 0.1 0" rotation="90 0 0"></a-cone>
+      <!-- Animated fins -->
+      <a-plane width="0.05" height="0.2" color="orange" position="-0.2 0 0" rotation="0 0 15" animation="property: rotation; to: 0 0 30; dir: alternate; dur: 800; easing: easeInOutSine; loop: true"></a-plane>
+      <a-plane width="0.05" height="0.2" color="orange" position="0.2 0 0" rotation="0 0 -15" animation="property: rotation; to: 0 0 -30; dir: alternate; dur: 800; easing: easeInOutSine; loop: true"></a-plane>
+    </a-entity>
 
-    <!-- Interactable Rocks -->
+    <!-- Jellyfish with Pulsing Animation -->
+    <a-entity id="jellyfish" position="2 3 -6" 
+              animation="property: position; to: 2 4 -6; dir: alternate; dur: 4000; easing: easeInOutSine; loop: true"
+              animation__scale="property: scale; to: 1.2 1.2 1.2; dir: alternate; dur: 2000; easing: easeInOutSine; loop: true">
+      <a-sphere radius="0.3" color="pink" position="0 0 0" shadow></a-sphere>
+      <!-- Animated tentacles -->
+      <a-cylinder radius="0.02" height="0.5" color="pink" position="-0.1 -0.5 0" animation="property: position; to: -0.1 -0.6 0; dir: alternate; dur: 1500; easing: easeInOutSine; loop: true"></a-cylinder>
+      <a-cylinder radius="0.02" height="0.5" color="pink" position="0.1 -0.5 0.1" animation="property: position; to: 0.1 -0.6 0.1; dir: alternate; dur: 1500; easing: easeInOutSine; loop: true"></a-cylinder>
+      <a-cylinder radius="0.02" height="0.5" color="pink" position="0.1 -0.5 -0.1" animation="property: position; to: 0.1 -0.6 -0.1; dir: alternate; dur: 1500; easing: easeInOutSine; loop: true"></a-cylinder>
+      <a-cylinder radius="0.02" height="0.5" color="pink" position="-0.1 -0.5 -0.1" animation="property: position; to: -0.1 -0.6 -0.1; dir: alternate; dur: 1500; easing: easeInOutSine; loop: true"></a-cylinder>
+    </a-entity>
+
+    <!-- Seaweed Swaying Animation -->
+    <a-entity geometry="primitive: cylinder; radius: 0.2; height: 1" material="color: coral" position="-1 0.5 -4"
+              animation="property: rotation; to: 0 15 0; dir: alternate; dur: 2000; easing: easeInOutSine; loop: true"></a-entity>
+    <a-entity geometry="primitive: cone; radius-bottom: 0.5; height: 1.5" material="color: purple" position="3 0.75 -6"
+              animation="property: rotation; to: 0 -15 0; dir: alternate; dur: 2500; easing: easeInOutSine; loop: true"></a-entity>
+
+    <!-- Interactive Rocks and Treasures with Floating Animation -->
     <a-entity id="rock1" geometry="primitive: box; width: 1; height: 1; depth: 1"
-              material="color: gray" 
+              material="color: gray; roughness: 0.8; metalness: 0"
               position="0 0.5 -5"
-              class="clickable"></a-entity>
-    <a-entity id="rock2" geometry="primitive: box; width: 1; height: 1; depth: 1"
-              material="color: gray" 
-              position="-3 0.5 -8"
-              class="clickable"></a-entity>
+              shadow cast
+              class="clickable"
+              dissolve-on-click
+              animation="property: position; to: 0 0.7 -5; dir: alternate; dur: 3000; easing: easeInOutSine; loop: true"></a-entity>
+    <a-entity id="treasure1" geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5"
+              material="color: gold"
+              position="4 0.5 -10"
+              class="clickable"
+              dissolve-on-click
+              animation="property: position; to: 4 0.7 -10; dir: alternate; dur: 3000; easing: easeInOutSine; loop: true"></a-entity>
 
-    <!-- Coral and Plant Life -->
-    <a-entity geometry="primitive: cylinder; radius: 0.2; height: 1"
-              material="color: coral" 
-              position="-1 0.5 -4"></a-entity>
-    <a-entity geometry="primitive: cone; radius-bottom: 0.5; height: 1.5"
-              material="color: purple" 
-              position="3 0.75 -6"></a-entity>
+    <!-- Detailed Particle Effects for Floating Particles -->
+    <a-entity particle-system="preset: dust; color: #ffffff; particleCount: 1000; size: 0.2; velocityValue: 0 0.05 0; opacity: 0.5;"></a-entity>
 
-    <!-- Depth Effect: Gradually Darkening Ocean -->
-    <a-animation attribute="fog.density" to="0.1" dur="10000" easing="easeInOutQuad" repeat="indefinite"></a-animation>
-    
     <!-- Sound for Underwater Environment -->
     <a-sound src="url(underwater-sound.mp3)" autoplay="true" loop="true" volume="0.5"></a-sound>
 
     <!-- Event Listener Script -->
     <script>
-      // Component to dissolve objects when clicked
+      // Register custom component to handle vertical movement separately
+      AFRAME.registerComponent('vertical-movement', {
+        schema: {
+          default: 0.1,
+          type: 'number'
+        },
+
+        init: function () {
+          this.camera = document.querySelector('#camera');
+        },
+
+        tick: function () {
+          // Ensure the camera's position updates vertically
+          const cameraPos = this.camera.getAttribute('position');
+          const cameraRot = this.camera.getAttribute('rotation');
+
+          // Update depth meter based on camera's vertical position
+          document.getElementById('depth-value').innerText = Math.round(cameraPos.y);
+        }
+      });
+
+      // Apply vertical movement to camera
+      document.querySelector('#camera').setAttribute('vertical-movement', 0.1);
+
+      // Dissolve component for objects
       AFRAME.registerComponent('dissolve-on-click', {
         init: function () {
           var el = this.el;
@@ -87,9 +131,9 @@
         }
       });
 
-      // Assign the dissolve behavior to the rocks
+      // Assign the dissolve behavior to rocks and treasures
       document.querySelector('#rock1').setAttribute('dissolve-on-click', '');
-      document.querySelector('#rock2').setAttribute('dissolve-on-click', '');
+      document.querySelector('#treasure1').setAttribute('dissolve-on-click', '');
     </script>
   </a-scene>
 </body>
