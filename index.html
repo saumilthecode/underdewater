@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Underwater Exploration</title>
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #info {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="info">Use WASD or arrow keys to navigate. Click on objects to interact!</div>
+  
+  <!-- A-Frame Scene -->
+  <a-scene fog="type: exponential; color: #001f3f; density: 0.05">
+    <!-- Camera and Controls -->
+    <a-entity camera look-controls wasd-controls position="0 1.6 0"></a-entity>
+
+    <!-- Ocean Background -->
+    <a-sky color="#003f5c"></a-sky>
+
+    <!-- Seafloor -->
+    <a-plane rotation="-90 0 0" width="100" height="100" color="#005f40"></a-plane>
+
+    <!-- Animated Marine Life -->
+    <a-entity id="fish1" geometry="primitive: sphere; radius: 0.2"
+              material="color: orange" 
+              position="1 1 -3"
+              animation="property: position; to: -2 1 -3; dur: 5000; dir: alternate; loop: true"></a-entity>
+    <a-entity id="fish2" geometry="primitive: sphere; radius: 0.3"
+              material="color: blue" 
+              position="-2 1 -5"
+              animation="property: position; to: 3 1 -5; dur: 7000; dir: alternate; loop: true"></a-entity>
+    <a-entity id="jellyfish" geometry="primitive: sphere; radius: 0.4"
+              material="color: pink" 
+              position="2 3 -6"
+              animation="property: position; to: 2 4 -6; dur: 4000; dir: alternate; loop: true"></a-entity>
+
+    <!-- Interactable Rocks -->
+    <a-entity id="rock1" geometry="primitive: box; width: 1; height: 1; depth: 1"
+              material="color: gray" 
+              position="0 0.5 -5"
+              class="clickable"></a-entity>
+    <a-entity id="rock2" geometry="primitive: box; width: 1; height: 1; depth: 1"
+              material="color: gray" 
+              position="-3 0.5 -8"
+              class="clickable"></a-entity>
+
+    <!-- Coral and Plant Life -->
+    <a-entity geometry="primitive: cylinder; radius: 0.2; height: 1"
+              material="color: coral" 
+              position="-1 0.5 -4"></a-entity>
+    <a-entity geometry="primitive: cone; radius-bottom: 0.5; height: 1.5"
+              material="color: purple" 
+              position="3 0.75 -6"></a-entity>
+
+    <!-- Depth Effect: Gradually Darkening Ocean -->
+    <a-animation attribute="fog.density" to="0.1" dur="10000" easing="easeInOutQuad" repeat="indefinite"></a-animation>
+    
+    <!-- Sound for Underwater Environment -->
+    <a-sound src="url(underwater-sound.mp3)" autoplay="true" loop="true" volume="0.5"></a-sound>
+
+    <!-- Event Listener Script -->
+    <script>
+      // Component to dissolve objects when clicked
+      AFRAME.registerComponent('dissolve-on-click', {
+        init: function () {
+          var el = this.el;
+          el.addEventListener('click', function () {
+            el.setAttribute('animation', {
+              property: 'scale',
+              to: '0 0 0',
+              dur: 1000,
+              easing: 'easeInOutQuad'
+            });
+          });
+        }
+      });
+
+      // Assign the dissolve behavior to the rocks
+      document.querySelector('#rock1').setAttribute('dissolve-on-click', '');
+      document.querySelector('#rock2').setAttribute('dissolve-on-click', '');
+    </script>
+  </a-scene>
+</body>
+</html>
